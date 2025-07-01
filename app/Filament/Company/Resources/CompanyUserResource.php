@@ -132,8 +132,8 @@ class CompanyUserResource extends Resource
         ];
     }
 
-    // public static function canAccess(): bool
-    // {
-    //     return auth('company')->user()?->can('manage_company_users');
-    // }
+    public static function canAccess(): bool
+    {
+        return auth('company')->user()?->can('manage_company_users');
+    }
 }

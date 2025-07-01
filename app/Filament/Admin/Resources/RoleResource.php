@@ -81,14 +81,14 @@ class RoleResource extends Resource
             ])
             ->filters([
            Filter::make('type')
-    ->label('Role Type')
-    ->form([
-        Select::make('value')
-            ->label('Type')
-            ->options([
-                'system' => 'System-level',
-                'company-general' => 'Company-general',
-                'company-specific' => 'Company-specific',
+            ->label('Role Type')
+            ->form([
+                Select::make('value')
+                    ->label('Type')
+                    ->options([
+                        'system' => 'System-level',
+                        'company-general' => 'Company-general',
+                        'company-specific' => 'Company-specific',
             ])
     ])
     ->indicateUsing(function (array $data): ?string {
@@ -109,6 +109,7 @@ class RoleResource extends Resource
     }),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

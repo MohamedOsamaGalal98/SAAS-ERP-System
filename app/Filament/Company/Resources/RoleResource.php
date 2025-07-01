@@ -17,6 +17,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Hidden;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TagsColumn;
+use Filament\Tables\Filters\Filter;
 
 class RoleResource extends Resource
 {
@@ -69,7 +70,30 @@ class RoleResource extends Resource
                 TagsColumn::make('permissions.name')->label('Permissions'),
             ])
             ->filters([
-                //
+            Filter::make('type')
+                ->label('Role Type')
+                ->form([
+                    Select::make('value')
+                        ->label('Type')
+                        ->options([
+                            'company-general' => 'Company-general',
+                            'company-specific' => 'Company-specific',
+                    ])
+                ])
+                ->indicateUsing(function (array $data): ?string {
+                    return match ($data['value'] ?? null) {
+                        'company-general' => 'Type: Company-general',
+                        'company-specific' => 'Type: Company-specific',
+                        default => null,
+                    };
+                })
+                ->query(function ($query, array $data) {
+                    return match ($data['value'] ?? null) {
+                        'company-general' => $query->where('guard_name', 'company')->whereNull('company_id'),
+                        'company-specific' => $query->where('guard_name', 'company')->whereNotNull('company_id'),
+                        default => $query,
+                    };
+                }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

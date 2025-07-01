@@ -4,7 +4,7 @@ namespace App\Filament\Company\Resources;
 
 use App\Filament\Company\Resources\PermissionResource\Pages;
 use App\Filament\Company\Resources\PermissionResource\RelationManagers;
-use App\Models\Permission;
+use Spatie\Permission\Models\Permission;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\BadgeColumn;
 
 class PermissionResource extends Resource
 {
@@ -42,6 +43,15 @@ class PermissionResource extends Resource
                     Select::make('company_id')
                     ->label('Company')
                     ->options(fn () => \App\Models\Company::pluck('name', 'id')->toArray()),
+                    // Select::make('company_id')
+                    // ->label('Company')
+                    // ->options(fn () => \App\Models\Company::pluck('name', 'id')->toArray()),
+                   
+                    TextInput::make('created_at')
+                        ->label('Created At')
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->toDayDateTimeString() : null),
             ]);
     }
 
@@ -49,9 +59,22 @@ class PermissionResource extends Resource
     {
         return $table
             ->columns([
-                 TextColumn::make('name')->searchable(),
-                TextColumn::make('guard_name'),
-                TextColumn::make('company.name')->label('Company')->default('—'),              
+                TextColumn::make('name')->searchable(),
+                BadgeColumn::make('guard_name')
+                 ->colors([
+                                    'success' => 'company',
+                                ]),
+                // TextColumn::make('company.name')->label('Company')->default('—'),              
+                TextColumn::make('company_id')
+                    ->label('Company')
+                    ->sortable()
+                    ->default('—')
+                    ->formatStateUsing(function ($state) {
+                        if (!$state) {
+                            return '—';
+                        }
+                        return \App\Models\Company::find($state)?->name ?? '—';
+                    }),
                 TextColumn::make('created_at')->dateTime(),
             ])
             ->filters([
@@ -63,9 +86,9 @@ class PermissionResource extends Resource
 
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -93,5 +116,17 @@ class PermissionResource extends Resource
                 $q->whereNull('company_id')
                   ->orWhere('company_id', $companyId);
             });
+    }
+
+    /**
+     * Return an array of core permission names that cannot be edited.
+     */
+    public static function getCorePermissions(): array
+    {
+        return [
+            'view_dashboard',
+            'manage_users',
+            // Add other core permissions as needed
+        ];
     }
 }

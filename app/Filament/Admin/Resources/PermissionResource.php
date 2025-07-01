@@ -21,8 +21,7 @@ use Filament\Tables\Columns\BadgeColumn;
 
 class PermissionResource extends Resource
 {
-     protected static ?string $model = Permission::class;
-
+    protected static ?string $model = Permission::class;
     protected static ?string $navigationIcon = 'heroicon-o-key';
     protected static ?string $navigationGroup = 'Authorization';
     protected static ?int $navigationSort = 11;
@@ -43,7 +42,16 @@ class PermissionResource extends Resource
                         'company' => 'Company',
                     ])
                     ->required(),
-            ]);
+                Select::make('company_id')
+                    ->label('Company')
+                    ->options(fn () => \App\Models\Company::pluck('name', 'id')->toArray()),
+           
+                TextInput::make('created_at')
+                    ->label('Created At')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->toDayDateTimeString() : null),
+                ]);
     }
 
     public static function table(Table $table): Table
@@ -56,8 +64,18 @@ class PermissionResource extends Resource
                                     'primary' => 'admin',
                                     'success' => 'company',
                                 ]),
-                TextColumn::make('company.name')->label('Company')->default('—'),        
-                                TextColumn::make('created_at')->dateTime(),      
+                // TextColumn::make('company.name')->label('Company')->default('—'),    
+                 TextColumn::make('company_id')
+                    ->label('Company')
+                    ->sortable()
+                    ->default('—')
+                    ->formatStateUsing(function ($state) {
+                        if (!$state) {
+                            return '—';
+                        }
+                        return \App\Models\Company::find($state)?->name ?? '—';
+                    }),    
+                    TextColumn::make('created_at')->dateTime(),      
                   ])->actions([
                         Tables\Actions\EditAction::make(),
                         Tables\Actions\DeleteAction::make(),
