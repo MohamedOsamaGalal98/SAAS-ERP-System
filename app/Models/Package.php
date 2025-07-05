@@ -19,10 +19,14 @@ class Package extends Model
     ];
 
 
-        public function modules()
+    public function modules()
     {
-        return $this->hasMany(PackageModule::class);
+        return $this->belongsToMany(Module::class)
+                    ->using(ModulePackage::class)
+                    ->withPivot('is_active')
+                    ->withTimestamps();
     }
+
 
     public function subscriptions()
     {

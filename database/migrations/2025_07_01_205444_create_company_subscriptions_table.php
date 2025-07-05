@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained()->onDelete('cascade');
             $table->foreignId('package_id')->constrained()->onDelete('cascade');
-            $table->timestamp('subscribed_at');
+            $table->timestamp('subscribed_at')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->timestamp('unsubscribed_at')->nullable();
             $table->boolean('is_active')->default(true);

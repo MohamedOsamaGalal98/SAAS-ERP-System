@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('package_modules', function (Blueprint $table) {
+        Schema::create('module_package', function (Blueprint $table) {
             $table->id();
             $table->foreignId('package_id')->constrained()->onDelete('cascade');
-            $table->string('module_name');
+            $table->foreignId('module_id')->constrained()->onDelete('cascade');
             $table->boolean('is_active')->default(true);
-            $table->softDeletes();
+            $table->softDeletes(); 
             $table->timestamps();
+            $table->unique(['package_id', 'module_id']);
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('package_modules');
+        Schema::dropIfExists('module_package');
     }
 };
